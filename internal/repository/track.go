@@ -9,12 +9,13 @@ import (
 )
 
 const (
-	table     = "tracks" // table name
-	pageLimit = 10       // max amount tracks per page
+	table         = "tracks" // table name
+	defaultLimit  = 10       // max amount tracks per page
+	defaultOffset = 0
 )
 
 type Track interface {
-	Get(params ListParamInput)
+	Get(params ListParamInput) ([]domain.Track, error)
 }
 
 type TrackRepository struct {
@@ -32,26 +33,29 @@ type ListParamInput struct {
 }
 
 // Return tracks by filter params
-// todo. realise filter
-func (r *TrackRepository) Get(params ListParamInput) {
+func (r *TrackRepository) Get(params ListParamInput) ([]domain.Track, error) {
 	where, values := r.whereStatement(params)
 
 	if params.Limit != "" {
 		values = append(values, params.Limit)
 	} else {
-		values = append(values, pageLimit)
+		values = append(values, defaultLimit)
 	}
 
 	if params.Offset != "" {
 		values = append(values, params.Offset)
+	} else {
+		values = append(values, defaultOffset)
 	}
 
-	quary := fmt.Sprintf("SELECT id, group_name, song, text, realise_date, link FROM %s%s LIMIT = ? OFFSET = ?", table, where)
-	fmt.Println(quary)
-	// rows, err := r.db.Query(fmt.Sprintf("SELECT id, group_name, song, text, realise_date, link FROM %s", table))
-	rows, err := r.db.Query(quary, values...) // ???? here is error!
+	quary := fmt.Sprintf(
+		"SELECT id, group_name, song, text, realise_date, link FROM %s%s LIMIT ? OFFSET ?",
+		table,
+		where,
+	)
+	rows, err := r.db.Query(quary, values...)
 	if err != nil {
-		log.Fatal(err) // todo. return error + create const error in storage to it
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -64,7 +68,7 @@ func (r *TrackRepository) Get(params ListParamInput) {
 		tracks = append(tracks, track)
 	}
 
-	fmt.Println(tracks)
+	return tracks, nil
 }
 
 // Prepare where statement
