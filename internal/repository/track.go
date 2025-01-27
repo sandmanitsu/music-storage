@@ -73,7 +73,6 @@ func (r *TrackRepository) Get(params ListParamInput) ([]domain.Track, error) {
 }
 
 // Prepare where statement
-// todo. add operator LIKE to field text
 func (r *TrackRepository) whereStatement(params ListParamInput) (string, []interface{}) {
 	var values []interface{}
 	var where []string
