@@ -13,8 +13,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
-	_ "music_storage/docs" // Импортируем документы Swagger
 )
 
 // Initializes whole application
