@@ -1,13 +1,21 @@
 package service
 
-import "music_storage/internal/repository"
+import (
+	"errors"
+	"log/slog"
+	"music_storage/internal/repository"
+)
+
+var (
+	ErrValidateInputParams = errors.New("error validating input params")
+)
 
 type Service struct {
 	Track TrackManager
 }
 
-func NewService(repos *repository.Repositories) *Service {
+func NewService(logger *slog.Logger, repos *repository.Repositories) *Service {
 	return &Service{
-		Track: NewTrackService(repos.Track),
+		Track: NewTrackService(logger, repos.Track),
 	}
 }

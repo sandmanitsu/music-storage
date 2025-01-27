@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 )
 
 func (h *Handler) initTrackRoutes() *http.ServeMux {
@@ -15,6 +17,16 @@ func (h *Handler) initTrackRoutes() *http.ServeMux {
 }
 
 func (h *Handler) trackList(w http.ResponseWriter, r *http.Request) {
-	h.services.Track.List()
+	params, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("error: parsing query params"))
+
+		return
+	}
+
+	fmt.Println(params)
+
+	h.services.Track.List(params)
 	w.Write([]byte("track list......."))
 }

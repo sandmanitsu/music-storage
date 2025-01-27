@@ -25,7 +25,7 @@ func Run(config *config.Config, logger *slog.Logger) {
 	}
 
 	repositories := repository.NewRepository(storage)
-	services := service.NewService(repositories)
+	services := service.NewService(logger, repositories)
 
 	handler := router.NewHandler(services)
 	router := handler.Init()
