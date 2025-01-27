@@ -2,8 +2,7 @@ package v1
 
 import (
 	"music_storage/internal/service"
-
-	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type Handler struct {
@@ -14,9 +13,9 @@ func NewHandler(services *service.Service) *Handler {
 	return &Handler{services: services}
 }
 
-func (h *Handler) Init(api *gin.RouterGroup) {
-	v1 := api.Group("/v1")
-	{
-		h.initTrackRoutes(v1)
-	}
+func (h *Handler) Init() *http.ServeMux {
+	router := http.NewServeMux()
+	router.Handle("/v1/", http.StripPrefix("/v1", h.initTrackRoutes()))
+
+	return router
 }

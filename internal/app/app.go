@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"log/slog"
 	"music_storage/internal/config"
 	log "music_storage/internal/logger"
@@ -8,7 +9,10 @@ import (
 	"music_storage/internal/service"
 	"music_storage/internal/storage/sqlite"
 	"music_storage/internal/transport/router"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func Run(config *config.Config, logger *slog.Logger) {
@@ -23,7 +27,29 @@ func Run(config *config.Config, logger *slog.Logger) {
 	repositories := repository.NewRepository(storage)
 	services := service.NewService(repositories)
 
-	handlers := router.NewHandler(services)
-	router := handlers.Init()
-	router.Run()
+	handler := router.NewHandler(services)
+	router := handler.Init()
+
+	server := http.Server{
+		Addr:    fmt.Sprintf("%s:%d", config.Host, config.Port),
+		Handler: router,
+	}
+
+	logger.Info(fmt.Sprintf("server starting on %s:%d", config.Host, config.Port))
+	go func() {
+		err := server.ListenAndServe()
+		if err != nil {
+			logger.Error("error starting server", log.Err(err))
+			os.Exit(1)
+		}
+	}()
+
+	logger.Info("server started")
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+
+	<-quit
+
+	logger.Info("graceful shutdown")
 }

@@ -2,18 +2,19 @@ package v1
 
 import (
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) initTrackRoutes(api *gin.RouterGroup) {
-	items := api.Group("/track")
-	{
-		items.GET("/list", h.trackList)
-	}
+func (h *Handler) initTrackRoutes() *http.ServeMux {
+	routes := http.NewServeMux()
+	routes.HandleFunc("GET /list", h.trackList)
+
+	trackRoutes := http.NewServeMux()
+	trackRoutes.Handle("/track/", http.StripPrefix("/track", routes))
+
+	return trackRoutes
 }
 
-func (h *Handler) trackList(c *gin.Context) {
+func (h *Handler) trackList(w http.ResponseWriter, r *http.Request) {
 	h.services.Track.List()
-	c.String(http.StatusOK, "track list.......")
+	w.Write([]byte("track list......."))
 }
