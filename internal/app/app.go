@@ -15,6 +15,7 @@ import (
 	"syscall"
 )
 
+// Initializes whole application
 func Run(config *config.Config, logger *slog.Logger) {
 	logger.Info("starting app")
 

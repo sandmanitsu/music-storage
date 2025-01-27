@@ -67,6 +67,7 @@ func (r *TrackRepository) Get(params ListParamInput) {
 	fmt.Println(tracks)
 }
 
+// Prepare where statement
 func (r *TrackRepository) whereStatement(params ListParamInput) (string, []interface{}) {
 	var values []interface{}
 	var where []string

@@ -10,7 +10,8 @@ const (
 	envProd = "prod"
 )
 
-// Create loger
+// ??? Maybe should do Logger struct with func Err()
+// Create logger
 func NewLogger(env string) *slog.Logger {
 	var logger *slog.Logger
 
