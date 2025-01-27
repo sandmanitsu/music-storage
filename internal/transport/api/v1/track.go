@@ -22,11 +22,28 @@ type TrackResponse struct {
 	Data []domain.Track `json:"data"`
 }
 
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+// @Summary  Get tracks with filter
+// @Tags track
+// @Description get tracks with filter by query get params. Get parameters is optional
+// @ModuleID trackList
+// @Accept json
+// @Produce json
+// @Success 200 {object} TrackResponse
+// @Failure 400,404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Failure default {object} ErrorResponse
+// @Router /track/list [get]
 func (h *Handler) trackList(w http.ResponseWriter, r *http.Request) {
+	// todo. json response when error
 	params, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("error: parsing query params"))
+		json, _ := json.Marshal(ErrorResponse{Error: "error: incorrect query params"})
+		w.Write(json)
 
 		return
 	}
@@ -34,7 +51,8 @@ func (h *Handler) trackList(w http.ResponseWriter, r *http.Request) {
 	tracks, err := h.services.Track.List(params)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("error: getting tracks"))
+		json, _ := json.Marshal(ErrorResponse{Error: "error: getting tracks"})
+		w.Write(json)
 
 		return
 	}

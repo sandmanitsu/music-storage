@@ -1,0 +1,63 @@
+definitions:
+  domain.Track:
+    properties:
+      group_name:
+        type: string
+      id:
+        type: integer
+      link:
+        type: string
+      realise_date:
+        type: string
+      song:
+        type: string
+      text:
+        type: string
+    type: object
+  v1.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  v1.TrackResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/domain.Track'
+        type: array
+    type: object
+info:
+  contact: {}
+paths:
+  /track/list:
+    get:
+      consumes:
+      - application/json
+      description: get tracks with filter by query get params. Get parameters is optional
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.TrackResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: Get tracks with filter
+      tags:
+      - track
+swagger: "2.0"

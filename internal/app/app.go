@@ -13,9 +13,25 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	_ "music_storage/docs" // Импортируем документы Swagger
 )
 
 // Initializes whole application
+// @title           Music Storage API
+// @version         1.0
+// @description     This testing task to create music storage API
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
 func Run(config *config.Config, logger *slog.Logger) {
 	logger.Info("starting app")
 
