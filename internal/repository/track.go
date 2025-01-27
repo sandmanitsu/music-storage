@@ -53,6 +53,7 @@ func (r *TrackRepository) Get(params ListParamInput) ([]domain.Track, error) {
 		table,
 		where,
 	)
+	fmt.Println(quary)
 	rows, err := r.db.Query(quary, values...)
 	if err != nil {
 		return nil, err
@@ -72,6 +73,7 @@ func (r *TrackRepository) Get(params ListParamInput) ([]domain.Track, error) {
 }
 
 // Prepare where statement
+// todo. add operator LIKE to field text
 func (r *TrackRepository) whereStatement(params ListParamInput) (string, []interface{}) {
 	var values []interface{}
 	var where []string
@@ -80,6 +82,13 @@ func (r *TrackRepository) whereStatement(params ListParamInput) (string, []inter
 		if v == "" {
 			continue
 		}
+
+		if k == "text" {
+			values = append(values, fmt.Sprintf("%%%s%%", v))
+			where = append(where, fmt.Sprintf("%s LIKE ?", k))
+			continue
+		}
+
 		values = append(values, v)
 		where = append(where, fmt.Sprintf("%s = ?", k))
 	}
