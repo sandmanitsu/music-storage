@@ -9,6 +9,7 @@ import (
 
 type TrackManager interface {
 	List(params url.Values) ([]domain.Track, error)
+	Delete(id int) error
 }
 
 type TrackService struct {
@@ -40,4 +41,8 @@ func (s *TrackService) List(params url.Values) ([]domain.Track, error) {
 	}
 
 	return tracks, nil
+}
+
+func (s *TrackService) Delete(id int) error {
+	return s.repos.Delete(id)
 }

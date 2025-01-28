@@ -3,8 +3,11 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"music_storage/internal/domain"
 	"strings"
+
+	sl "music_storage/internal/logger"
 )
 
 const (
@@ -15,14 +18,16 @@ const (
 
 type Track interface {
 	Get(params ListParamInput) ([]domain.Track, error)
+	Delete(id int) error
 }
 
 type TrackRepository struct {
-	db *sql.DB
+	logger *slog.Logger
+	db     *sql.DB
 }
 
 // Create Track Repository
-func NewTrackRepository(db *sql.DB) *TrackRepository {
+func NewTrackRepository(logger *slog.Logger, db *sql.DB) *TrackRepository {
 	return &TrackRepository{db: db}
 }
 
@@ -57,10 +62,9 @@ func (r *TrackRepository) Get(params ListParamInput) ([]domain.Track, error) {
 		limitPlaceholderNum,
 		offsetPlaceholderNum,
 	)
-	fmt.Println(query)
 	rows, err := r.db.Query(query, values...)
 	if err != nil {
-		fmt.Println(err)
+		r.logger.Debug("error executing query", slog.String("query", query), sl.Err(err))
 		return nil, err
 	}
 	defer rows.Close()
@@ -104,4 +108,14 @@ func (r *TrackRepository) whereStatement(params ListParamInput) (string, []inter
 	}
 
 	return fmt.Sprintf(" WHERE %s", strings.Join(where, " AND ")), values
+}
+
+func (r *TrackRepository) Delete(id int) error {
+	_, err := r.db.Exec("DELETE FROM tracks WHERE id = $1", id)
+	if err != nil {
+		r.logger.Debug("error deleting track", sl.Err(err))
+		return err
+	}
+
+	return nil
 }
