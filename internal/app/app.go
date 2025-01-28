@@ -7,7 +7,7 @@ import (
 	log "music_storage/internal/logger"
 	"music_storage/internal/repository"
 	"music_storage/internal/service"
-	"music_storage/internal/storage/sqlite"
+	"music_storage/internal/storage/postgresql"
 	"music_storage/internal/transport/router"
 	"net/http"
 	"os"
@@ -28,7 +28,7 @@ import (
 func Run(config *config.Config, logger *slog.Logger) {
 	logger.Info("starting app")
 
-	storage, err := sqlite.NewSQLite(config.DB.StoragePath)
+	storage, err := postgresql.NewPostgreSQL(config.DB)
 	if err != nil {
 		logger.Error("failed to init sqlite storage", log.Err(err))
 		os.Exit(1)

@@ -3,7 +3,6 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"music_storage/internal/domain"
 	"strings"
 )
@@ -36,26 +35,32 @@ type ListParamInput struct {
 func (r *TrackRepository) Get(params ListParamInput) ([]domain.Track, error) {
 	where, values := r.whereStatement(params)
 
+	limitPlaceholderNum := len(values) + 1
 	if params.Limit != "" {
 		values = append(values, params.Limit)
 	} else {
 		values = append(values, defaultLimit)
 	}
 
+	offsetPlaceholderNum := len(values) + 1
 	if params.Offset != "" {
 		values = append(values, params.Offset)
 	} else {
 		values = append(values, defaultOffset)
 	}
 
-	quary := fmt.Sprintf(
-		"SELECT id, group_name, song, text, realise_date, link FROM %s%s LIMIT ? OFFSET ?",
+	_ = where
+	query := fmt.Sprintf(
+		"SELECT id, group_name, song, song_text, realise_date, link FROM %s%s LIMIT $%d OFFSET $%d",
 		table,
 		where,
+		limitPlaceholderNum,
+		offsetPlaceholderNum,
 	)
-	fmt.Println(quary)
-	rows, err := r.db.Query(quary, values...)
+	fmt.Println(query)
+	rows, err := r.db.Query(query, values...)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -64,7 +69,7 @@ func (r *TrackRepository) Get(params ListParamInput) ([]domain.Track, error) {
 	for rows.Next() {
 		var track domain.Track
 		if err := rows.Scan(&track.ID, &track.GroupName, &track.Song, &track.Text, &track.RealiseDate, &track.Link); err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 		tracks = append(tracks, track)
 	}
@@ -76,20 +81,20 @@ func (r *TrackRepository) Get(params ListParamInput) ([]domain.Track, error) {
 func (r *TrackRepository) whereStatement(params ListParamInput) (string, []interface{}) {
 	var values []interface{}
 	var where []string
-
+	i := 1
 	for k, v := range params.Filter {
 		if v == "" {
 			continue
 		}
 
-		if k == "text" {
+		if k == "song_text" {
 			values = append(values, fmt.Sprintf("%%%s%%", v))
-			where = append(where, fmt.Sprintf("%s LIKE ?", k))
+			where = append(where, fmt.Sprintf("%s LIKE $%d", k, i))
 			continue
 		}
 
 		values = append(values, v)
-		where = append(where, fmt.Sprintf("%s = ?", k))
+		where = append(where, fmt.Sprintf("%s = $%d", k, i))
 	}
 
 	if len(where) == 0 {

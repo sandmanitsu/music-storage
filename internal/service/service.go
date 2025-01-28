@@ -1,13 +1,8 @@
 package service
 
 import (
-	"errors"
 	"log/slog"
 	"music_storage/internal/repository"
-)
-
-var (
-	ErrValidateInputParams = errors.New("error validating input params")
 )
 
 type Service struct {

@@ -17,7 +17,11 @@ type Config struct {
 }
 
 type DB struct {
-	StoragePath string `env:"SQLITE_PATH" env-required:"true"`
+	Host     string `env:"DBHOST" env-required:"true"`
+	User     string `env:"USER" env-required:"true"`
+	Password string `env:"PASSWORD" env-required:"true"`
+	Port     int    `env:"DBPORT" env-required:"true"`
+	DBname   string `env:"DBNAME" env-required:"true"`
 }
 
 var (

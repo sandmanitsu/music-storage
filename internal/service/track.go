@@ -3,7 +3,6 @@ package service
 import (
 	"log/slog"
 	"music_storage/internal/domain"
-	sl "music_storage/internal/logger"
 	"music_storage/internal/repository"
 	"net/url"
 )
@@ -26,7 +25,7 @@ func (s *TrackService) List(params url.Values) ([]domain.Track, error) {
 	filter["id"] = params.Get("id")
 	filter["group_name"] = params.Get("group_name")
 	filter["song"] = params.Get("song")
-	filter["text"] = params.Get("text")
+	filter["song_text"] = params.Get("text")
 	filter["realise_date"] = params.Get("realise_date")
 	filter["link"] = params.Get("link")
 
@@ -36,7 +35,7 @@ func (s *TrackService) List(params url.Values) ([]domain.Track, error) {
 		Limit:  params.Get("limit"),
 	})
 	if err != nil {
-		s.logger.Debug("error executing sql", sl.Err(err))
+		// s.logger.Debug("error executing sql") //, sl.Err(err))
 		return nil, err
 	}
 
