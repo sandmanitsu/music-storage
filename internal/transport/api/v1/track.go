@@ -6,11 +6,13 @@ import (
 	"music_storage/internal/domain"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 func (h *Handler) initTrackRoutes() *http.ServeMux {
 	routes := http.NewServeMux()
 	routes.HandleFunc("GET /list", h.list)
+	routes.HandleFunc("GET /text", h.text)
 	routes.HandleFunc("DELETE /delete", h.delete)
 
 	trackRoutes := http.NewServeMux()
@@ -57,6 +59,55 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json, err := json.Marshal(ListResponse{Data: tracks, Error: ""})
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("{\"error\": \"creating json\"}"))
+
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(json)
+}
+
+type TextResponse struct {
+	Text  []string `json:"text"`
+	Error string   `json:"error"`
+}
+
+// @Summary Get song text
+// @Tags track
+// @Description get song text with id separated by choruses
+// @ModuleID text
+// @Accept json
+// @Produce json
+// @Success 200 {object} TextResponse
+// @Failure 400,404 {object} TextResponse
+// @Failure 500 {object} TextResponse
+// @Failure default {object} TextResponse
+// @Router /track/text [get]
+func (h *Handler) text(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	id, err := strconv.Atoi(r.FormValue("id"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json, _ := json.Marshal(TextResponse{Text: nil, Error: "error: empty or incorrent id"})
+		w.Write(json)
+
+		return
+	}
+
+	chorus, err := h.services.Track.Text(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json, _ := json.Marshal(TextResponse{Text: nil, Error: err.Error()})
+		w.Write(json)
+
+		return
+	}
+
+	json, err := json.Marshal(TextResponse{Text: chorus, Error: ""})
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("{\"error\": \"creating json\"}"))

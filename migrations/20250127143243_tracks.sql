@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS public.tracks (
 	CONSTRAINT tracks_pk PRIMARY KEY (id)
 );
 
-INSERT INTO public.tracks (group_name, song, song_text, realise_date, link) VALUES ('Survivor', 'Burning heart', 'bla-bla-bla', date('1985-04-12'), 'https://www.youtube.com/watch?v=Kc71KZG87X4');
-INSERT INTO public.tracks (group_name, song, song_text, realise_date, link) VALUES ('Bangers', 'Bang', 'text bangets', date('2010-03-12'), 'https://www.youtube.com/watch?v=Kc71KZG87X4');
+INSERT INTO public.tracks (group_name, song, song_text, realise_date, link) VALUES ('Survivor', 'Burning heart', 'bla-bla-bla %chorus% chorus text 2', date('1985-04-12'), 'https://www.youtube.com/watch?v=Kc71KZG87X4');
+INSERT INTO public.tracks (group_name, song, song_text, realise_date, link) VALUES ('Bangers', 'Bang', 'text bangets %chorus% bla-bla-bla %chorus% bla-bla-bla', date('2010-03-12'), 'https://www.youtube.com/watch?v=Kc71KZG87X4');
 INSERT INTO public.tracks (group_name, song, song_text, realise_date, link) VALUES ('Survivor', 'Eye of the tiger', 'tiger text', date('1983-04-12'), 'https://www.youtube.com/watch?v=Kc71KZG87X4');
 INSERT INTO public.tracks (group_name, song, song_text, realise_date, link) VALUES ('Police', 'Bottle', 'bottle rtext', date('1993-10-29'), 'https://www.youtube.com/watch?v=Kc71KZG87X4');
 

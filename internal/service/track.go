@@ -5,11 +5,13 @@ import (
 	"music_storage/internal/domain"
 	"music_storage/internal/repository"
 	"net/url"
+	"strings"
 )
 
 type TrackManager interface {
 	List(params url.Values) ([]domain.Track, error)
 	Delete(id int) error
+	Text(id int) ([]string, error)
 }
 
 type TrackService struct {
@@ -41,6 +43,16 @@ func (s *TrackService) List(params url.Values) ([]domain.Track, error) {
 	}
 
 	return tracks, nil
+}
+
+func (s *TrackService) Text(id int) ([]string, error) {
+	text, err := s.repos.Text(id)
+	if err != nil {
+		return nil, err
+	}
+
+	chorus := strings.Split(text, "%chorus%")
+	return chorus, nil
 }
 
 func (s *TrackService) Delete(id int) error {
