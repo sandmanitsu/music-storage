@@ -51,7 +51,7 @@ func (r *TrackRepository) Get(params ListParamInput) ([]domain.Track, error) {
 
 	_ = where
 	query := fmt.Sprintf(
-		"SELECT id, group_name, song, song_text, realise_date, link FROM %s%s LIMIT $%d OFFSET $%d",
+		"SELECT id, group_name, song, song_text, TO_CHAR(realise_date::DATE, 'YYYY-MM-DD') AS realise_date, link FROM %s%s LIMIT $%d OFFSET $%d",
 		table,
 		where,
 		limitPlaceholderNum,
@@ -90,11 +90,13 @@ func (r *TrackRepository) whereStatement(params ListParamInput) (string, []inter
 		if k == "song_text" {
 			values = append(values, fmt.Sprintf("%%%s%%", v))
 			where = append(where, fmt.Sprintf("%s LIKE $%d", k, i))
+			i++
 			continue
 		}
 
 		values = append(values, v)
 		where = append(where, fmt.Sprintf("%s = $%d", k, i))
+		i++
 	}
 
 	if len(where) == 0 {
