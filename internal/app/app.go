@@ -19,11 +19,6 @@ import (
 // @title           Music Storage API
 // @version         1.0
 // @description     This testing task to create music storage API
-// @termsOfService  http://swagger.io/terms/
-
-// @contact.name   API Support
-// @contact.url    http://www.swagger.io/support
-// @contact.email  support@swagger.io
 
 // @host      localhost:8080
 // @BasePath  /api/v1
