@@ -24,13 +24,13 @@ type ListResponse struct {
 	Error string         `json:"error"`
 }
 
-// @Summary  Get tracks with filter
+// @Summary  Get list of song
 // @Tags track
 // @Description get tracks with filter by query get params. Get parameters is optional
-// @ModuleID trackList
+// @ModuleID list
 // @Accept json
 // @Produce json
-// @Success 200 {object} TrackResponse
+// @Success 200 {object} ListResponse
 // @Failure 400,404 {object} ListResponse
 // @Failure 500 {object} ListResponse
 // @Failure default {object} ListResponse
@@ -77,7 +77,20 @@ type DeleteResponse struct {
 	Error  string
 }
 
+// @Summary Delete song
+// @Tags track
+// @Description Delete song from storage by id
+// @ModuleID delete
+// @Accept json
+// @Produce json
+// @Success 200 {object} DeleteResponse
+// @Failure 400,404 {object} DeleteResponse
+// @Failure 500 {object} DeleteResponse
+// @Failure default {object} DeleteResponse
+// @Router /track/delete [delete]
 func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

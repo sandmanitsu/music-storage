@@ -15,6 +15,53 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/track/delete": {
+            "delete": {
+                "description": "Delete song from storage by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "track"
+                ],
+                "summary": "Delete song",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.DeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.DeleteResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.DeleteResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.DeleteResponse"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/v1.DeleteResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/track/list": {
             "get": {
                 "description": "get tracks with filter by query get params. Get parameters is optional",
@@ -27,36 +74,36 @@ const docTemplate = `{
                 "tags": [
                     "track"
                 ],
-                "summary": "Get tracks with filter",
+                "summary": "Get list of song",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.TrackResponse"
+                            "$ref": "#/definitions/v1.ListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
+                            "$ref": "#/definitions/v1.ListResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
+                            "$ref": "#/definitions/v1.ListResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
+                            "$ref": "#/definitions/v1.ListResponse"
                         }
                     },
                     "default": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponse"
+                            "$ref": "#/definitions/v1.ListResponse"
                         }
                     }
                 }
@@ -87,15 +134,18 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.ErrorResponse": {
+        "v1.DeleteResponse": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },
-        "v1.TrackResponse": {
+        "v1.ListResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -103,6 +153,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.Track"
                     }
+                },
+                "error": {
+                    "type": "string"
                 }
             }
         }
