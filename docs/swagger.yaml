@@ -47,6 +47,12 @@ paths:
       consumes:
       - application/json
       description: Delete song from storage by id
+      parameters:
+      - description: song id
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -58,16 +64,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/v1.DeleteResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.DeleteResponse'
         "500":
           description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.DeleteResponse'
-        default:
-          description: ""
           schema:
             $ref: '#/definitions/v1.DeleteResponse'
       summary: Delete song
@@ -78,6 +76,35 @@ paths:
       consumes:
       - application/json
       description: get tracks with filter by query get params. Get parameters is optional
+      parameters:
+      - description: song id
+        in: path
+        name: id
+        type: integer
+      - description: group name
+        in: path
+        name: group_name
+        type: string
+      - description: song name
+        in: path
+        name: song
+        type: string
+      - description: gong text
+        in: path
+        name: text
+        type: string
+      - description: realise date
+        in: path
+        name: realise_date
+        type: string
+      - description: limit
+        in: path
+        name: limit
+        type: integer
+      - description: offset
+        in: path
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -89,16 +116,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/v1.ListResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.ListResponse'
         "500":
           description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.ListResponse'
-        default:
-          description: ""
           schema:
             $ref: '#/definitions/v1.ListResponse'
       summary: Get list of song
@@ -109,6 +128,12 @@ paths:
       consumes:
       - application/json
       description: get song text with id separated by choruses
+      parameters:
+      - description: song id
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:

@@ -32,10 +32,16 @@ type ListResponse struct {
 // @ModuleID list
 // @Accept json
 // @Produce json
+// @Param        id				path	int		false  "song id"
+// @Param        group_name		path	string	false  "group name"
+// @Param        song			path	string	false  "song name"
+// @Param        text			path	string	false  "gong text"
+// @Param        realise_date	path	string	false  "realise date"
+// @Param        limit   		path	int		false  "limit"
+// @Param        offset   		path	int		false  "offset"
 // @Success 200 {object} ListResponse
-// @Failure 400,404 {object} ListResponse
+// @Failure 400 {object} ListResponse
 // @Failure 500 {object} ListResponse
-// @Failure default {object} ListResponse
 // @Router /track/list [get]
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -81,6 +87,7 @@ type TextResponse struct {
 // @ModuleID text
 // @Accept json
 // @Produce json
+// @Param        id		path	int		true	"song id"
 // @Success 200 {object} TextResponse
 // @Failure 400,404 {object} TextResponse
 // @Failure 500 {object} TextResponse
@@ -100,7 +107,7 @@ func (h *Handler) text(w http.ResponseWriter, r *http.Request) {
 
 	chorus, err := h.services.Track.Text(id)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		json, _ := json.Marshal(TextResponse{Text: nil, Error: err.Error()})
 		w.Write(json)
 
@@ -134,10 +141,10 @@ type DeleteResponse struct {
 // @ModuleID delete
 // @Accept json
 // @Produce json
+// @Param        id		path	int		true	"song id"
 // @Success 200 {object} DeleteResponse
-// @Failure 400,404 {object} DeleteResponse
+// @Failure 400 {object} DeleteResponse
 // @Failure 500 {object} DeleteResponse
-// @Failure default {object} DeleteResponse
 // @Router /track/delete [delete]
 func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")

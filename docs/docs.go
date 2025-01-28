@@ -28,6 +28,15 @@ const docTemplate = `{
                     "track"
                 ],
                 "summary": "Delete song",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "song id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -41,20 +50,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/v1.DeleteResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/v1.DeleteResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/v1.DeleteResponse"
-                        }
-                    },
-                    "default": {
-                        "description": "",
                         "schema": {
                             "$ref": "#/definitions/v1.DeleteResponse"
                         }
@@ -75,6 +72,50 @@ const docTemplate = `{
                     "track"
                 ],
                 "summary": "Get list of song",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "song id",
+                        "name": "id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "group name",
+                        "name": "group_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "song name",
+                        "name": "song",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "gong text",
+                        "name": "text",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "realise date",
+                        "name": "realise_date",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "offset",
+                        "name": "offset",
+                        "in": "path"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -88,20 +129,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/v1.ListResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ListResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ListResponse"
-                        }
-                    },
-                    "default": {
-                        "description": "",
                         "schema": {
                             "$ref": "#/definitions/v1.ListResponse"
                         }
@@ -122,6 +151,15 @@ const docTemplate = `{
                     "track"
                 ],
                 "summary": "Get song text",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "song id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
