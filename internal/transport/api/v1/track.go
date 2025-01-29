@@ -229,6 +229,7 @@ type UpdateResponse struct {
 // @ModuleID update
 // @Accept json
 // @Produce json
+// @param params body service.TrackInput true "id is required param"
 // @Success 200 {object} UpdateResponse
 // @Failure 400 {object} UpdateResponse
 // @Failure 500 {object} UpdateResponse

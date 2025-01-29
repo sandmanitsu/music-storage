@@ -207,6 +207,17 @@ const docTemplate = `{
                     "track"
                 ],
                 "summary": "Update song",
+                "parameters": [
+                    {
+                        "description": "id is required param",
+                        "name": "params",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.TrackInput"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -232,6 +243,29 @@ const docTemplate = `{
     },
     "definitions": {
         "domain.Track": {
+            "type": "object",
+            "properties": {
+                "group_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "realise_date": {
+                    "type": "string"
+                },
+                "song": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.TrackInput": {
             "type": "object",
             "properties": {
                 "group_name": {

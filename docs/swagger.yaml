@@ -14,6 +14,21 @@ definitions:
       text:
         type: string
     type: object
+  service.TrackInput:
+    properties:
+      group_name:
+        type: string
+      id:
+        type: integer
+      link:
+        type: string
+      realise_date:
+        type: string
+      song:
+        type: string
+      text:
+        type: string
+    type: object
   v1.DeleteResponse:
     properties:
       error:
@@ -172,6 +187,13 @@ paths:
       consumes:
       - application/json
       description: Update song by id
+      parameters:
+      - description: id is required param
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/service.TrackInput'
       produces:
       - application/json
       responses:
