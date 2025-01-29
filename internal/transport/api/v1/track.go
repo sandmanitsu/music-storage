@@ -15,6 +15,7 @@ const (
 	songTextMsg = "request: getting gong text"
 	deleteMsg   = "request: delete song"
 	updateMsg   = "request: update song"
+	addMsg      = "request: add song"
 )
 
 func (h *Handler) initTrackRoutes() *http.ServeMux {
@@ -23,6 +24,7 @@ func (h *Handler) initTrackRoutes() *http.ServeMux {
 	routes.HandleFunc("GET /text", h.text)
 	routes.HandleFunc("DELETE /delete", h.delete)
 	routes.HandleFunc("POST /update", h.update)
+	routes.HandleFunc("POST /add", h.add)
 
 	trackRoutes := http.NewServeMux()
 	trackRoutes.Handle("/track/", http.StripPrefix("/track", routes))
@@ -281,4 +283,7 @@ func (h *Handler) update(w http.ResponseWriter, r *http.Request) {
 	w.Write(json)
 
 	h.logger.InfoAPI(updateMsg, http.StatusOK, r.URL.String(), "")
+}
+
+func (h *Handler) add(w http.ResponseWriter, r *http.Request) {
 }
