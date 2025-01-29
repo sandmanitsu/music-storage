@@ -14,7 +14,7 @@ func main() {
 
 	log.Println("logger initializing...")
 	logger := logger.NewLogger(config.Env)
-	logger.Info("logger started!", slog.String("env", config.Env))
+	logger.Sl.Info("logger started!", slog.String("env", config.Env))
 
 	app.Run(config, logger)
 }

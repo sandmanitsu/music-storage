@@ -4,9 +4,17 @@ import (
 	"encoding/json"
 	"io"
 	"music_storage/internal/domain"
+	"music_storage/internal/service"
 	"net/http"
 	"net/url"
 	"strconv"
+)
+
+const (
+	listMsg     = "request: getting list of song"
+	songTextMsg = "request: getting gong text"
+	deleteMsg   = "request: delete song"
+	updateMsg   = "request: update song"
 )
 
 func (h *Handler) initTrackRoutes() *http.ServeMux {
@@ -14,6 +22,7 @@ func (h *Handler) initTrackRoutes() *http.ServeMux {
 	routes.HandleFunc("GET /list", h.list)
 	routes.HandleFunc("GET /text", h.text)
 	routes.HandleFunc("DELETE /delete", h.delete)
+	routes.HandleFunc("POST /update", h.update)
 
 	trackRoutes := http.NewServeMux()
 	trackRoutes.Handle("/track/", http.StripPrefix("/track", routes))
@@ -48,6 +57,8 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 
 	params, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
+		h.logger.InfoAPI(listMsg, http.StatusBadRequest, r.URL.String(), err.Error())
+
 		w.WriteHeader(http.StatusBadRequest)
 		json, _ := json.Marshal(ListResponse{Data: nil, Error: "error: incorrect query params"})
 		w.Write(json)
@@ -57,6 +68,8 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 
 	tracks, err := h.services.Track.List(params)
 	if err != nil {
+		h.logger.InfoAPI(listMsg, http.StatusBadRequest, r.URL.String(), err.Error())
+
 		w.WriteHeader(http.StatusBadRequest)
 		json, _ := json.Marshal(ListResponse{Data: nil, Error: "error: getting tracks"})
 		w.Write(json)
@@ -66,14 +79,16 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 
 	json, err := json.Marshal(ListResponse{Data: tracks, Error: ""})
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("{\"error\": \"creating json\"}"))
+		h.logger.InfoAPI(listMsg, http.StatusBadRequest, r.URL.String(), err.Error())
+		h.creatingJsonErr(w)
 
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(json)
+
+	h.logger.InfoAPI(listMsg, http.StatusOK, r.URL.String(), "")
 }
 
 type TextResponse struct {
@@ -98,6 +113,8 @@ func (h *Handler) text(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(r.FormValue("id"))
 	if err != nil {
+		h.logger.InfoAPI(songTextMsg, http.StatusBadRequest, r.URL.String(), err.Error())
+
 		w.WriteHeader(http.StatusBadRequest)
 		json, _ := json.Marshal(TextResponse{Text: nil, Error: "error: empty or incorrent id"})
 		w.Write(json)
@@ -107,6 +124,8 @@ func (h *Handler) text(w http.ResponseWriter, r *http.Request) {
 
 	chorus, err := h.services.Track.Text(id)
 	if err != nil {
+		h.logger.InfoAPI(songTextMsg, http.StatusBadRequest, r.URL.String(), err.Error())
+
 		w.WriteHeader(http.StatusNotFound)
 		json, _ := json.Marshal(TextResponse{Text: nil, Error: err.Error()})
 		w.Write(json)
@@ -116,14 +135,16 @@ func (h *Handler) text(w http.ResponseWriter, r *http.Request) {
 
 	json, err := json.Marshal(TextResponse{Text: chorus, Error: ""})
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("{\"error\": \"creating json\"}"))
+		h.logger.InfoAPI(listMsg, http.StatusBadRequest, r.URL.String(), err.Error())
+		h.creatingJsonErr(w)
 
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(json)
+
+	h.logger.InfoAPI(songTextMsg, http.StatusOK, r.URL.String(), "")
 }
 
 type DeleteRequest struct {
@@ -132,7 +153,7 @@ type DeleteRequest struct {
 
 type DeleteResponse struct {
 	Status string `json:"status"`
-	Error  string
+	Error  string `json:"error"`
 }
 
 // @Summary Delete song
@@ -151,6 +172,8 @@ func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		h.logger.InfoAPI(deleteMsg, http.StatusOK, r.URL.String(), err.Error())
+
 		w.WriteHeader(http.StatusBadRequest)
 		json, _ := json.Marshal(DeleteResponse{Status: "failed", Error: "error: reading request body"})
 		w.Write(json)
@@ -161,6 +184,8 @@ func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
 	var input DeleteRequest
 	err = json.Unmarshal(body, &input)
 	if err != nil {
+		h.logger.InfoAPI(deleteMsg, http.StatusOK, r.URL.String(), err.Error())
+
 		w.WriteHeader(http.StatusBadRequest)
 		json, _ := json.Marshal(DeleteResponse{Status: "failed", Error: "error: unmarshaling json"})
 		w.Write(json)
@@ -170,6 +195,8 @@ func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
 
 	err = h.services.Track.Delete(input.ID)
 	if err != nil {
+		h.logger.InfoAPI(deleteMsg, http.StatusOK, r.URL.String(), err.Error())
+
 		w.WriteHeader(http.StatusBadRequest)
 		json, _ := json.Marshal(DeleteResponse{Status: "failed", Error: "error: db delete error"})
 		w.Write(json)
@@ -177,7 +204,80 @@ func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	json, err := json.Marshal(DeleteResponse{Status: "success", Error: ""})
+	if err != nil {
+		h.logger.InfoAPI(listMsg, http.StatusBadRequest, r.URL.String(), err.Error())
+		h.creatingJsonErr(w)
+
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
-	json, _ := json.Marshal(DeleteResponse{Status: "success", Error: ""})
 	w.Write(json)
+
+	h.logger.InfoAPI(deleteMsg, http.StatusOK, r.URL.String(), "")
+}
+
+type UpdateResponse struct {
+	Status string `json:"status"`
+	Error  string `json:"error"`
+}
+
+// @Summary Update song
+// @Tags track
+// @Description Update song by id
+// @ModuleID update
+// @Accept json
+// @Produce json
+// @Success 200 {object} UpdateResponse
+// @Failure 400 {object} UpdateResponse
+// @Failure 500 {object} UpdateResponse
+// @Router /track/update [post]
+func (h *Handler) update(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		h.logger.InfoAPI(updateMsg, http.StatusBadRequest, r.URL.String(), err.Error())
+
+		w.WriteHeader(http.StatusBadRequest)
+		json, _ := json.Marshal(UpdateResponse{Status: "failed", Error: "error: reading request body"})
+		w.Write(json)
+
+		return
+	}
+
+	var input service.TrackInput
+	err = json.Unmarshal(body, &input)
+	if err != nil {
+		h.logger.InfoAPI(updateMsg, http.StatusBadRequest, r.URL.String(), err.Error())
+
+		w.WriteHeader(http.StatusBadRequest)
+		json, _ := json.Marshal(UpdateResponse{Status: "failed", Error: "error: bad params or empty id"})
+		w.Write(json)
+
+		return
+	}
+
+	err = h.services.Track.Update(input)
+	if err != nil {
+		h.logger.InfoAPI(updateMsg, http.StatusBadRequest, r.URL.String(), err.Error())
+
+		w.WriteHeader(http.StatusBadRequest)
+		json, _ := json.Marshal(UpdateResponse{Status: "failed", Error: "error: insert data"})
+		w.Write(json)
+
+		return
+	}
+
+	json, err := json.Marshal(UpdateResponse{Status: "success", Error: ""})
+	if err != nil {
+		h.logger.InfoAPI(listMsg, http.StatusBadRequest, r.URL.String(), err.Error())
+		h.creatingJsonErr(w)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(json)
+
+	h.logger.InfoAPI(updateMsg, http.StatusOK, r.URL.String(), "")
 }

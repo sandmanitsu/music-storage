@@ -39,6 +39,13 @@ definitions:
           type: string
         type: array
     type: object
+  v1.UpdateResponse:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -158,6 +165,29 @@ paths:
           schema:
             $ref: '#/definitions/v1.TextResponse'
       summary: Get song text
+      tags:
+      - track
+  /track/update:
+    post:
+      consumes:
+      - application/json
+      description: Update song by id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.UpdateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.UpdateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.UpdateResponse'
+      summary: Update song
       tags:
       - track
 swagger: "2.0"

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log/slog"
 	"music_storage/internal/domain"
+	"music_storage/internal/logger"
 	"music_storage/internal/storage"
+	"reflect"
 	"strings"
-
-	sl "music_storage/internal/logger"
 )
 
 const (
@@ -21,16 +21,17 @@ type Track interface {
 	Get(params ListParamInput) ([]domain.Track, error)
 	Delete(id int) error
 	Text(id int) (string, error)
+	Update(id int, data map[string]interface{}) error
 }
 
 type TrackRepository struct {
-	logger *slog.Logger
+	logger *logger.Logger
 	db     *sql.DB
 }
 
 // Create Track Repository
-func NewTrackRepository(logger *slog.Logger, db *sql.DB) *TrackRepository {
-	return &TrackRepository{db: db}
+func NewTrackRepository(logger *logger.Logger, db *sql.DB) *TrackRepository {
+	return &TrackRepository{db: db, logger: logger}
 }
 
 type ListParamInput struct {
@@ -66,7 +67,8 @@ func (r *TrackRepository) Get(params ListParamInput) ([]domain.Track, error) {
 	)
 	rows, err := r.db.Query(query, values...)
 	if err != nil {
-		r.logger.Debug("error executing query", slog.String("query", query), sl.Err(err))
+		r.logger.Debug("error executing query", slog.String("query", query), r.logger.Err(err))
+
 		return nil, err
 	}
 	defer rows.Close()
@@ -85,8 +87,8 @@ func (r *TrackRepository) Get(params ListParamInput) ([]domain.Track, error) {
 
 // Prepare where statement
 func (r *TrackRepository) whereStatement(params ListParamInput) (string, []interface{}) {
-	var values []interface{}
-	var where []string
+	values := make([]interface{}, 0, 5)
+	where := make([]string, 0, 5)
 	i := 1
 	for k, v := range params.Filter {
 		if v == "" {
@@ -97,6 +99,7 @@ func (r *TrackRepository) whereStatement(params ListParamInput) (string, []inter
 			values = append(values, fmt.Sprintf("%%%s%%", v))
 			where = append(where, fmt.Sprintf("%s LIKE $%d", k, i))
 			i++
+
 			continue
 		}
 
@@ -115,7 +118,8 @@ func (r *TrackRepository) whereStatement(params ListParamInput) (string, []inter
 func (r *TrackRepository) Delete(id int) error {
 	_, err := r.db.Exec(fmt.Sprintf("DELETE FROM %s WHERE id = $1", table), id)
 	if err != nil {
-		r.logger.Debug("error deleting track", sl.Err(err))
+		r.logger.Debug("error deleting track", r.logger.Err(err))
+
 		return err
 	}
 
@@ -130,8 +134,57 @@ func (r *TrackRepository) Text(id int) (string, error) {
 		if err == sql.ErrNoRows {
 			return "", storage.ErrRecordsNotFound
 		}
-		r.logger.Debug(fmt.Sprintf("db error: getting song_text. query - %s", query), sl.Err(err))
+		r.logger.Debug(fmt.Sprintf("db error: getting song_text. query - %s", query), r.logger.Err(err))
+
 		return "", err
 	}
+
 	return text, nil
+}
+
+func (r *TrackRepository) Update(id int, data map[string]interface{}) error {
+	fields, values := parseData(data)
+
+	values = append(values, id)
+	idPlaceholderNum := len(values)
+
+	query := fmt.Sprintf("UPDATE %s SET %s WHERE id = $%d", table, strings.Join(fields, ","), idPlaceholderNum)
+	result, err := r.db.Exec(query, values...)
+	if err != nil {
+		r.logger.Debug(fmt.Sprintf("error insert into %s query: %s", table, query), r.logger.Err(err))
+
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		r.logger.Debug(fmt.Sprintf("error getting affected rows %s", table), r.logger.Err(err))
+	}
+
+	if rows == 0 {
+		r.logger.Debug(fmt.Sprintf("error no rows affected %s", table))
+
+		return storage.ErrNoRowsAffected
+	}
+
+	return nil
+}
+
+// Prepare field and values
+// Filtering values on nil
+func parseData(data map[string]interface{}) ([]string, []interface{}) {
+	fields := make([]string, 0, 5)
+	values := make([]interface{}, 0, 5)
+	i := 1
+	for f, v := range data {
+		if reflect.ValueOf(v).IsNil() {
+			continue
+		}
+
+		values = append(values, v)
+		fields = append(fields, fmt.Sprintf("%s = $%d ", f, i))
+		i++
+	}
+
+	return fields, values
 }

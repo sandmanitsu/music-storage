@@ -2,9 +2,8 @@ package app
 
 import (
 	"fmt"
-	"log/slog"
 	"music_storage/internal/config"
-	log "music_storage/internal/logger"
+	"music_storage/internal/logger"
 	"music_storage/internal/repository"
 	"music_storage/internal/service"
 	"music_storage/internal/storage/postgresql"
@@ -25,12 +24,12 @@ import (
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
-func Run(config *config.Config, logger *slog.Logger) {
+func Run(config *config.Config, logger *logger.Logger) {
 	logger.Info("starting app")
 
 	storage, err := postgresql.NewPostgreSQL(config.DB)
 	if err != nil {
-		logger.Error("failed to init sqlite storage", log.Err(err))
+		logger.Error("failed to init sqlite storage", logger.Err(err))
 		os.Exit(1)
 	}
 
@@ -38,7 +37,7 @@ func Run(config *config.Config, logger *slog.Logger) {
 	services := service.NewService(logger, repositories)
 
 	handler := router.NewHandler(services)
-	router := handler.Init()
+	router := handler.Init(logger)
 
 	server := http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Host, config.Port),
@@ -49,7 +48,7 @@ func Run(config *config.Config, logger *slog.Logger) {
 	go func() {
 		err := server.ListenAndServe()
 		if err != nil {
-			logger.Error("error starting server", log.Err(err))
+			logger.Error("error starting server", logger.Err(err))
 			os.Exit(1)
 		}
 	}()

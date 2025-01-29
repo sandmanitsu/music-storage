@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"log/slog"
+	"music_storage/internal/logger"
 	"music_storage/internal/storage/postgresql"
 )
 
@@ -10,6 +10,6 @@ type Repositories struct {
 }
 
 // Create Repository struct that include other data repositories
-func NewRepository(logger *slog.Logger, storage *postgresql.Storage) *Repositories {
+func NewRepository(logger *logger.Logger, storage *postgresql.Storage) *Repositories {
 	return &Repositories{Track: NewTrackRepository(logger, storage.DB)}
 }
