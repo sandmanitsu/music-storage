@@ -5,10 +5,11 @@
 - migrations - файлы для миграции
 
 ```API```
-- /api/v1/track/list - получение списка песни
-- /api/v1/track/text - получение текста песни
-- /api/v1/track/delete - удаление песни
-- /api/v1/track/update - обновление данных песни
+- GET /api/v1/track/list - получение списка песни
+- GET /api/v1/track/text - получение текста песни
+- DELETE /api/v1/track/delete - удаление песни
+- POST /api/v1/track/update - обновление данных песни
+- POST /api/v1/track/update - добавление данных песни
 
 ##
 - /swagger/ - swaggerUI
@@ -35,6 +36,12 @@ GOOSE_MIGRATION_DIR=./migrations
 
 ```bash
 # запуск приложения
+start:
+	docker-compose up -d
+	goose up
+	swag init -g cmd/app/main.go
+	go run cmd/app/main.go
+
 run: 
 	go run cmd/app/main.go
 # миграции:
