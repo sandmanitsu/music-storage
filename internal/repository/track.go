@@ -22,6 +22,7 @@ type Track interface {
 	Delete(id int) error
 	Text(id int) (string, error)
 	Update(id int, data map[string]interface{}) error
+	Add(data domain.Track) error
 }
 
 type TrackRepository struct {
@@ -151,7 +152,7 @@ func (r *TrackRepository) Update(id int, data map[string]interface{}) error {
 	query := fmt.Sprintf("UPDATE %s SET %s WHERE id = $%d", table, strings.Join(fields, ","), idPlaceholderNum)
 	result, err := r.db.Exec(query, values...)
 	if err != nil {
-		r.logger.Debug(fmt.Sprintf("error insert into %s query: %s", table, query), r.logger.Err(err))
+		r.logger.Debug(fmt.Sprintf("error update into %s query: %s", table, query), r.logger.Err(err))
 
 		return err
 	}
@@ -187,4 +188,16 @@ func parseData(data map[string]interface{}) ([]string, []interface{}) {
 	}
 
 	return fields, values
+}
+
+func (r *TrackRepository) Add(data domain.Track) error {
+	query := fmt.Sprintf("INSERT INTO %s (group_name, song, song_text, realise_date, link) VALUES ($1, $2, $3, $4, $5)", table)
+	_, err := r.db.Exec(query, data.GroupName, data.Song, data.Text, data.RealiseDate, data.Link)
+	if err != nil {
+		r.logger.Debug(fmt.Sprintf("error insert into %s query: %s", table, query), r.logger.Err(err))
+
+		return err
+	}
+
+	return nil
 }

@@ -14,6 +14,13 @@ definitions:
       text:
         type: string
     type: object
+  service.TrackAddInput:
+    properties:
+      group:
+        type: string
+      song:
+        type: string
+    type: object
   service.TrackInput:
     properties:
       group_name:
@@ -29,13 +36,6 @@ definitions:
       text:
         type: string
     type: object
-  v1.DeleteResponse:
-    properties:
-      error:
-        type: string
-      status:
-        type: string
-    type: object
   v1.ListResponse:
     properties:
       data:
@@ -43,6 +43,13 @@ definitions:
           $ref: '#/definitions/domain.Track'
         type: array
       error:
+        type: string
+    type: object
+  v1.Response:
+    properties:
+      error:
+        type: string
+      status:
         type: string
     type: object
   v1.TextResponse:
@@ -54,16 +61,39 @@ definitions:
           type: string
         type: array
     type: object
-  v1.UpdateResponse:
-    properties:
-      error:
-        type: string
-      status:
-        type: string
-    type: object
 info:
   contact: {}
 paths:
+  /track/add:
+    post:
+      consumes:
+      - application/json
+      description: adding song to storage
+      parameters:
+      - description: group and song name is required
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/service.TrackAddInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: add song
+      tags:
+      - track
   /track/delete:
     delete:
       consumes:
@@ -81,15 +111,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/v1.DeleteResponse'
+            $ref: '#/definitions/v1.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/v1.DeleteResponse'
+            $ref: '#/definitions/v1.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/v1.DeleteResponse'
+            $ref: '#/definitions/v1.Response'
       summary: Delete song
       tags:
       - track
@@ -200,15 +230,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/v1.UpdateResponse'
+            $ref: '#/definitions/v1.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/v1.UpdateResponse'
+            $ref: '#/definitions/v1.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/v1.UpdateResponse'
+            $ref: '#/definitions/v1.Response'
       summary: Update song
       tags:
       - track

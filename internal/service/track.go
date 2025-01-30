@@ -1,11 +1,14 @@
 package service
 
 import (
+	"encoding/json"
+	"fmt"
 	"music_storage/internal/domain"
 	"music_storage/internal/logger"
 	"music_storage/internal/repository"
 	"net/url"
 	"strings"
+	"time"
 )
 
 type TrackManager interface {
@@ -13,6 +16,7 @@ type TrackManager interface {
 	Delete(id int) error
 	Text(id int) ([]string, error)
 	Update(data TrackInput) error
+	Add(data TrackAddInput) error
 }
 
 type TrackService struct {
@@ -78,4 +82,72 @@ func (s *TrackService) Update(input TrackInput) error {
 	data["link"] = input.Link
 
 	return s.repos.Update(input.ID, data)
+}
+
+type TrackAddInput struct {
+	GroupName string `json:"group"`
+	Song      string `json:"song"`
+}
+
+type SongInfo struct {
+	RealiseDate string `json:"releaseDate"`
+	Text        string `json:"text"`
+	Link        string `json:"link"`
+}
+
+func (s *TrackService) Add(input TrackAddInput) error {
+	if input.GroupName == "" {
+		return fmt.Errorf("error: fielf group is empty")
+	}
+	if input.Song == "" {
+		return fmt.Errorf("error: song group is empty")
+	}
+
+	// todo. Пробросить верный url для запроса.
+	// url := fmt.Sprintf("https://localhost/info?group=%s&song=%s", input.GroupName, input.Song)
+
+	// response, err := http.Get(url)
+	// if err != nil {
+	// 	s.logger.Debug(fmt.Sprintf("error get song info - url: %s", url), s.logger.Err(err))
+	// }
+	// defer response.Body.Close()
+
+	// body, err := io.ReadAll(response.Body)
+	// if err != nil {
+	// 	s.logger.Debug("error reading boby song info", s.logger.Err(err))
+
+	// 	return err
+	// }
+
+	// ! mock data
+	var err error
+	body := []byte(`{"releaseDate":"16.07.2006","text":"Ooh baby, don't you know I suffer?\nOoh baby, canyou hear me moan?\nYou caught me under false pretenses\nHow longbefore you let me go?\n\nOoh\nYou set my soul alight\nOoh\nYou setmy soul alights","link":"https://www.youtube.com/watch?v=Xsp3_a-PMTw"}`)
+
+	var songInfo SongInfo
+	err = json.Unmarshal(body, &songInfo)
+	if err != nil {
+		s.logger.Debug("error marshal JSON with song info", s.logger.Err(err))
+
+		return err
+	}
+
+	date, err := time.Parse("02.01.2006", songInfo.RealiseDate)
+	if err != nil {
+		s.logger.Debug("error parse date in song info", s.logger.Err(err))
+
+		return err
+	}
+
+	err = s.repos.Add(domain.Track{
+		GroupName:   input.GroupName,
+		Song:        input.Song,
+		Text:        songInfo.Text,
+		RealiseDate: date.Format("2006-01-02"),
+		Link:        songInfo.Link,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
